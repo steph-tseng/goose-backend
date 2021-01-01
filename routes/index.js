@@ -9,4 +9,12 @@ router.use("/users", userApi);
 const authApi = require("./auth.api");
 router.use("/auth", authApi);
 
+// topicApi
+const topicApi = require("./topic.api");
+router.use("/topics", topicApi);
+
+// projectApi
+const projectApi = require("./project.api");
+router.use("/projects", projectApi);
+
 module.exports = router;

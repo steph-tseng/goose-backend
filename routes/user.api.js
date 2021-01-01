@@ -6,6 +6,13 @@ const authMiddleware = require("../middlewares/authentication");
 const userController = require("../controllers/user.controller");
 
 /**
+ * @route POST api/users/
+ * @description Create user profile
+ * @access Public
+ */
+router.post("/", userController.register);
+
+/**
  * @route PUT api/users/
  * @description Update user profile
  * @access Login required

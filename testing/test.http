@@ -1,0 +1,16 @@
+GET http://localhost:5000/api/topics
+
+###
+
+POST http://localhost:5000/api/topics
+content-type: application/json
+
+{
+    "title": "Aristophanes",
+    "description": "The Clouds where Socrates is an icon and comes flying in onstage to consult with The Clouds for philosophical knowledge and also the man who talked about soulmates being our other halves that Zeus separated us from because being together made us too powerful"
+
+}
+
+###
+GET http://localhost:5000/api/projects
+
