@@ -10,8 +10,15 @@ const projectSchema = Schema(
     researchQuestion: { type: String },
     tags: [String],
     author: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-    topic: { type: Schema.Types.ObjectId, ref: "Topic" },
-    projectCount: { type: Number },
+    topicId: { type: Schema.Types.ObjectId, ref: "Topic" },
+    reactions: {
+      laugh: { type: Number, default: 0 },
+      sad: { type: Number, default: 0 },
+      like: { type: Number, default: 0 },
+      love: { type: Number, default: 0 },
+      angry: { type: Number, default: 0 },
+    },
+    reviewCount: { type: Number, default: 0 },
     isDeleted: { type: Boolean, default: false, select: false },
   },
   { timestamps: true }
