@@ -7,9 +7,6 @@
     "dev": "nodemon ./bin/www",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install npm && run build"
   },
-  "engines": {
-    "node": "14.15.0"
-  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
