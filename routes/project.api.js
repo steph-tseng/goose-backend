@@ -11,10 +11,11 @@ const authMiddleware = require("../middlewares/authentication");
 router.get("/", projectController.getProjects);
 
 /**
- * @route GET api/topics/:topicId/:projectId
+ * @route GET api/projects/:projectId
  * @description Get details of a single project
  * @access Public
  */
+router.get("/:id", projectController.getSelectedProject);
 
 /**
  * @route POST api/projects
@@ -28,15 +29,25 @@ router.post(
 );
 
 /**
- * @route PUT api/topics/:topicId/:projectId
+ * @route PUT api/projects/:projectId
  * @description Update a project
  * @access Login required
  */
+router.put(
+  "/:id",
+  authMiddleware.loginRequired,
+  projectController.updateProject
+);
 
 /**
- * @route
- * @description
- * @access
+ * @route DELETE api/projects/:projectId
+ * @description Delete a project
+ * @access Login required
  */
+router.delete(
+  "/:id",
+  authMiddleware.loginRequired,
+  projectController.deleteProject
+);
 
 module.exports = router;

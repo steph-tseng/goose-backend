@@ -7,12 +7,13 @@ const userSchema = Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    avatarUrl: { type: String, require: false, default: "" },
     password: { type: String, required: true, select: false },
+    avatarURL: { type: String, require: false, default: "" },
     emailVerificationCode: { type: String, select: false },
     emailVerified: { type: Boolean, require: true, default: false },
     friendCount: { type: Number, default: 0 },
     isDeleted: { type: Boolean, default: false, select: false },
+    projectCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

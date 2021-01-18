@@ -8,18 +8,19 @@ const bcrypt = require("bcryptjs");
 const userController = {};
 
 userController.register = catchAsync(async (req, res, next) => {
-  let { name, email, avatarUrl, password } = req.body;
+  let { name, email, password, avatarURL } = req.body;
+  console.log(req.body);
   let user = await User.findOne({ email });
   if (user)
     return next(new AppError(409, "User already exists", "Register Error"));
 
   const salt = await bcrypt.genSalt(10);
-  password = await bcrypt.hash(password, salt);
+  password = await bcrypt.hash(req.body.password, salt);
   user = await User.create({
     name,
     email,
     password,
-    avatarUrl,
+    avatarURL,
   });
   const accessToken = await user.generateToken();
   return sendResponse(res, 200, true, { user }, null, "Create user successful");
@@ -27,7 +28,7 @@ userController.register = catchAsync(async (req, res, next) => {
 
 userController.updateProfile = catchAsync(async (req, res, next) => {
   const userId = req.userId;
-  const allows = ["name", "password", "avatarUrl"];
+  const allows = ["name", "password", "avatarURL"];
   const user = await User.findById(userId);
   if (!user) {
     return next(new AppError(404, "Account not found", "Update Profile Error"));
@@ -82,29 +83,22 @@ userController.getUsers = catchAsync(async (req, res, next) => {
     .skip(offset)
     .limit(limit);
 
-  const promises = users.map(async (user) => {
-    let temp = user.toJSON();
-    temp.friendship = await Friendship.findOne(
-      {
-        $or: [
-          { from: currentUserId, to: user._id },
-          { from: user._id, to: currentUserId },
-        ],
-      },
-      "-_id status updatedAt"
-    );
-    return temp;
-  });
-  const usersWithFriendship = await Promise.all(promises);
+  // const promises = users.map(async (user) => {
+  //   let temp = user.toJSON();
+  //   temp.friendship = await Friendship.findOne(
+  //     {
+  //       $or: [
+  //         { from: currentUserId, to: user._id },
+  //         { from: user._id, to: currentUserId },
+  //       ],
+  //     },
+  //     "-_id status updatedAt"
+  //   );
+  //   return temp;
+  // });
+  // const usersWithFriendship = await Promise.all(promises);
 
-  return sendResponse(
-    res,
-    200,
-    true,
-    { users: usersWithFriendship, totalPages },
-    null,
-    ""
-  );
+  return sendResponse(res, 200, true, { users, totalPages }, null, "");
 });
 
 module.exports = userController;

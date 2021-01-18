@@ -31,6 +31,6 @@ router.get("/me", authMiddleware.loginRequired, userController.getCurrentUser);
  * @description Get users with pagination
  * @access Login required
  */
-router.get("/", authMiddleware.loginRequired, userController.getUsers);
+router.get("/", userController.getUsers);
 
 module.exports = router;

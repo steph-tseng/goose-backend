@@ -14,3 +14,17 @@ content-type: application/json
 ###
 GET http://localhost:5000/api/projects
 
+### 
+GET http://localhost:5000/api/users
+
+###
+POST http://localhost:5000/api/users
+content-type: application/json
+{
+    "email": "test285@mail.com",
+    "password": 123,
+}
+
+###
+    "avatarUrl": "https://image.shutterstock.com/image-vector/black-cat-silhouette-elegant-sitting-260nw-735404302.jpg"
+GET http://localhost:5000/api/projects/5ff3cf671b0f1a1da8372532

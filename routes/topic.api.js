@@ -13,6 +13,13 @@ const { body, param } = require("express-validator");
 router.get("/", topicController.getTopics);
 
 /**
+ * @route GET api/topics/all
+ * @description Get list of topics
+ * @access Public
+ */
+router.get("/all", topicController.getAllTopics);
+
+/**
  * @route GET api/topics/:topicId
  * @description Get list of projects inside of topic
  * @access Public
@@ -31,6 +38,7 @@ router.post("/", authMiddleware.loginRequired, topicController.createNewTopic);
  * @description Update a topic
  * @access Login required
  */
+router.put("/:id", authMiddleware.loginRequired, topicController.updateProject);
 
 /**
  * @route DELETE api/topics/:topicId

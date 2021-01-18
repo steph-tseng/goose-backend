@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const Topic = require("./Topic");
+const User = require("./User");
 
 const projectSchema = Schema(
   {
@@ -16,16 +18,22 @@ const projectSchema = Schema(
 );
 
 projectSchema.statics.calculateProjectCount = async function (userId) {
-  const ProjectCount = await this.find({
-    $or: [{ from: userId }, { to: userId }],
-    status: "accepted",
+  const projectCount = await this.find({
+    author: userId,
   }).countDocuments();
-  await User.findByIdAndUpdate(userId, { ProjectCount: ProjectCount });
+  await User.findByIdAndUpdate(userId, { projectCount: projectCount });
+};
+
+projectSchema.statics.calculateProjectInTopicCount = async function (topicId) {
+  const ProjectCount = await this.find({
+    topic: topicId,
+  }).countDocuments();
+  await Topic.findByIdAndUpdate(topicId, { projectCount: ProjectCount });
 };
 
 projectSchema.post("save", function () {
-  this.constructor.calculateProjectCount(this.from);
-  this.constructor.calculateProjectCount(this.to);
+  this.constructor.calculateProjectCount(this.author);
+  this.constructor.calculateProjectInTopicCount(this.topic);
 });
 
 projectSchema.pre(/^findOneAnd/, async function (next) {
@@ -34,8 +42,10 @@ projectSchema.pre(/^findOneAnd/, async function (next) {
 });
 
 projectSchema.post(/^findOneAnd/, async function (next) {
-  await this.doc.constructor.calculateProjectCount(this.doc.from);
-  await this.doc.constructor.calculateProjectCount(this.doc.to);
+  if (this.doc)
+    await this.doc.constructor.calculateProjectCount(this.doc.author);
+  if (this.doc)
+    await this.doc.constructor.calculateProjectInTopicCount(this.doc.topic);
 });
 
 projectSchema.plugin(require("./plugins/isDeletedFalse"));

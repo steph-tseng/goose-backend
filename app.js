@@ -8,6 +8,8 @@ var logger = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const MONGODB_URI = process.env.MONGODB_URI;
+const passport = require("passport");
+require("./middlewares/passport");
 
 var indexRouter = require("./routes/index");
 
@@ -19,6 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(passport.initialize());
 
 mongoose
   .connect(MONGODB_URI, {
@@ -27,6 +30,7 @@ mongoose
     useNewUrlParser: true,
     useFindAndModify: true,
     useUnifiedTopology: true,
+    useFindAndModify: false,
   })
   .then(() => {
     // console.log(`Mongoose connected to ${MONGODB_URI}`);

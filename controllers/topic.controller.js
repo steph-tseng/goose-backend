@@ -10,7 +10,7 @@ const topicController = {};
 topicController.getTopics = catchAsync(async (req, res, next) => {
   let { page, limit, sortBy, ...filter } = { ...req.query };
   page = parseInt(page) || 1;
-  limit = parseInt(limit) || 10;
+  limit = parseInt(limit) || 9;
 
   const totalTopics = await Topic.countDocuments({
     ...filter,
@@ -20,13 +20,24 @@ topicController.getTopics = catchAsync(async (req, res, next) => {
   const offset = limit * (page - 1);
 
   // console.log({ filter, sortBy });
-  const topics = await Topic.find(filter)
-    .sort({ ...sortBy, createdAt: -1 })
+  const topics = await Topic.find({ ...filter })
+    .sort({ ...sortBy, title: 1 })
     .skip(offset)
     .limit(limit)
     .populate("author");
 
   return sendResponse(res, 200, true, { topics, totalPages }, null, "");
+});
+
+topicController.getAllTopics = catchAsync(async (req, res, next) => {
+  let { sortBy, ...filter } = { ...req.query };
+  const totalTopics = await Topic.countDocuments({
+    ...filter,
+    isDeleted: false,
+  });
+
+  const topics = await Topic.find(filter).sort({ ...sortBy, title: 1 });
+  return sendResponse(res, 200, true, { topics, totalTopics }, null, "");
 });
 
 topicController.getSelectedTopic = catchAsync(async (req, res, next) => {
@@ -40,10 +51,10 @@ topicController.getSelectedTopic = catchAsync(async (req, res, next) => {
 });
 
 topicController.createNewTopic = catchAsync(async (req, res, next) => {
-  const author = req.userId;
+  // const author = req.userId;
   const { title, description } = req.body;
 
-  const topic = await Topic.create({ title, description, author });
+  const topic = await Topic.create({ title, description });
 
   return sendResponse(
     res,
@@ -53,6 +64,27 @@ topicController.createNewTopic = catchAsync(async (req, res, next) => {
     null,
     "Successfully created a new topic"
   );
+});
+
+topicController.updateProject = catchAsync(async (req, res, next) => {
+  const { title, description } = req.body;
+  const topicId = req.params.id;
+
+  const topic = await Topic.findOneAndUpdate(
+    { _id: topicId },
+    { title, description },
+    { new: true }
+  );
+
+  if (!topic)
+    return next(
+      new AppError(
+        400,
+        "Topic not found or User not authorized",
+        "Update topic error"
+      )
+    );
+  return sendResponse(res, 200, true, topic, null, "Update topic successful");
 });
 
 topicController.deleteTopic = catchAsync(async (req, res, next) => {
