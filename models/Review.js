@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const Project = require("./Project");
+// const Topic = require("./Topic");
 
 const reviewSchema = Schema(
   {
@@ -8,11 +9,12 @@ const reviewSchema = Schema(
     user: { type: Schema.ObjectId, required: true, ref: "User" },
     project: { type: Schema.ObjectId, required: true, ref: "Project" },
     reactions: {
-      laugh: { type: Number, default: 0 },
-      sad: { type: Number, default: 0 },
-      like: { type: Number, default: 0 },
       love: { type: Number, default: 0 },
-      angry: { type: Number, default: 0 },
+      thumbup: { type: Number, default: 0 },
+      thumbdown: { type: Number, default: 0 },
+      laugh: { type: Number, default: 0 },
+      emphasize: { type: Number, default: 0 },
+      question: { type: Number, default: 0 },
     },
   },
   { timestamps: true }

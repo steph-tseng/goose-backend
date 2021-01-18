@@ -4,7 +4,11 @@ const Schema = mongoose.Schema;
 const reactionSchema = Schema(
   {
     user: { type: Schema.ObjectId, required: true, ref: "User" },
-    targetType: { type: String, required: true, enum: ["Blog", "Review"] },
+    targetType: {
+      type: String,
+      required: true,
+      enum: ["Project", "Review"],
+    },
     targetId: {
       type: Schema.ObjectId,
       required: true,
@@ -13,7 +17,7 @@ const reactionSchema = Schema(
     emoji: {
       type: String,
       required: true,
-      enum: ["laugh", "sad", "like", "love", "angry"],
+      enum: ["love", "thumbup", "thumbdown", "laugh", "emphasize", "question"],
     },
   },
   { timestamps: true }
@@ -30,29 +34,34 @@ reactionSchema.statics.calculateReaction = async function (
     {
       $group: {
         _id: "$targetId",
-        laugh: {
-          $sum: {
-            $cond: [{ $eq: ["$emoji", "laugh"] }, 1, 0],
-          },
-        },
-        sad: {
-          $sum: {
-            $cond: [{ $eq: ["$emoji", "sad"] }, 1, 0],
-          },
-        },
-        like: {
-          $sum: {
-            $cond: [{ $eq: ["$emoji", "like"] }, 1, 0],
-          },
-        },
         love: {
           $sum: {
             $cond: [{ $eq: ["$emoji", "love"] }, 1, 0],
           },
         },
-        angry: {
+        thumbup: {
           $sum: {
-            $cond: [{ $eq: ["$emoji", "angry"] }, 1, 0],
+            $cond: [{ $eq: ["$emoji", "thumbup"] }, 1, 0],
+          },
+        },
+        thumbdown: {
+          $sum: {
+            $cond: [{ $eq: ["$emoji", "thumbdown"] }, 1, 0],
+          },
+        },
+        laugh: {
+          $sum: {
+            $cond: [{ $eq: ["$emoji", "laugh"] }, 1, 0],
+          },
+        },
+        emphasize: {
+          $sum: {
+            $cond: [{ $eq: ["$emoji", "emphasize"] }, 1, 0],
+          },
+        },
+        question: {
+          $sum: {
+            $cond: [{ $eq: ["$emoji", "question"] }, 1, 0],
           },
         },
       },
@@ -60,11 +69,12 @@ reactionSchema.statics.calculateReaction = async function (
   ]);
   await mongoose.model(targetType).findByIdAndUpdate(targetId, {
     reactions: {
-      laugh: (stats[0] && stats[0].laugh) || 0,
-      sad: (stats[0] && stats[0].sad) || 0,
       love: (stats[0] && stats[0].love) || 0,
-      like: (stats[0] && stats[0].like) || 0,
-      angry: (stats[0] && stats[0].angry) || 0,
+      thumbup: (stats[0] && stats[0].thumbup) || 0,
+      thumbdown: (stats[0] && stats[0].thumbdown) || 0,
+      laugh: (stats[0] && stats[0].laugh) || 0,
+      emphasize: (stats[0] && stats[0].emphasize) || 0,
+      question: (stats[0] && stats[0].question) || 0,
     },
   });
 };
