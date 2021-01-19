@@ -4,6 +4,7 @@ const {
   sendResponse,
 } = require("../helpers/utils.helper");
 const User = require("../models/User");
+const Follower = require("../models/Follower");
 const bcrypt = require("bcryptjs");
 const userController = {};
 
@@ -99,6 +100,79 @@ userController.getUsers = catchAsync(async (req, res, next) => {
   // const usersWithFriendship = await Promise.all(promises);
 
   return sendResponse(res, 200, true, { users, totalPages }, null, "");
+});
+
+userController.startFollowing = catchAsync(async (req, res, next) => {
+  const userId = req.userId; // From
+  const toUserId = req.params.id; // To
+
+  const user = await User.findById(toUserId);
+  if (!user) {
+    return next(
+      new AppError(400, "User not found", "Send Friend Request Error")
+    );
+  }
+
+  let following = await Follower.findOne({
+    $or: [
+      { follower: toUserId, following: userId },
+      { follower: userId, following: toUserId },
+    ],
+  });
+  if (!following) {
+    await Follower.create({
+      follower: userId,
+      following: toUserId,
+      status: "following",
+    });
+    return sendResponse(
+      res,
+      200,
+      true,
+      null,
+      null,
+      "You are now following this user"
+    );
+  }
+  // } else {
+  //   switch (following.status) {
+  //     case "following":
+  //       if (friendship.follower.equals(userId)) {
+  //         return next(
+  //           new AppError(
+  //             400,
+  //             "You are already following this user",
+  //             "Follow User Error"
+  //           )
+  //         );
+  //       } else {
+  //         return next(
+  //           new AppError(
+  //             400,
+  //             "You have received a request from this user",
+  //             "Follow User Error"
+  //           )
+  //         );
+  //       }
+  //       break;
+  //     case "accepted":
+  //       return next(
+  //         new AppError(400, "Users are already friend", "Add Friend Error")
+  //       );
+  //       break;
+  //     case "removed":
+  //     case "decline":
+  //     case "cancel":
+  //       friendship.from = userId;
+  //       friendship.to = toUserId;
+  //       friendship.status = "requesting";
+  //       await friendship.save();
+  //       return sendResponse(res, 200, true, null, null, "Request has ben sent");
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
 });
 
 module.exports = userController;
