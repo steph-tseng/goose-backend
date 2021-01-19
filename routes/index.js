@@ -18,7 +18,7 @@ const projectApi = require("./project.api");
 router.use("/projects", projectApi);
 
 // reviewApi
-const reviewApi = require("./project.api");
+const reviewApi = require("./review.api");
 router.use("/reviews", reviewApi);
 
 module.exports = router;
