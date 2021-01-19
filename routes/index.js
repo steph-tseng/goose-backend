@@ -25,4 +25,7 @@ router.use("/reviews", reviewApi);
 const reactionApi = require("./reaction.api");
 router.use("/reactions", reactionApi);
 
+const followerApi = require("./follower.api");
+router.use("/following", followerApi);
+
 module.exports = router;
