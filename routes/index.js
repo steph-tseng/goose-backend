@@ -21,4 +21,8 @@ router.use("/projects", projectApi);
 const reviewApi = require("./review.api");
 router.use("/reviews", reviewApi);
 
+// reactionApi
+const reactionApi = require("./reaction.api");
+router.use("/reactions", reactionApi);
+
 module.exports = router;
