@@ -30,6 +30,7 @@ userController.register = catchAsync(async (req, res, next) => {
 userController.updateProfile = catchAsync(async (req, res, next) => {
   const userId = req.userId;
   const allows = ["name", "password", "avatarURL"];
+  const { name, password, avatarURL } = req.body;
   const user = await User.findById(userId);
   if (!user) {
     return next(new AppError(404, "Account not found", "Update Profile Error"));
@@ -40,6 +41,12 @@ userController.updateProfile = catchAsync(async (req, res, next) => {
       user[field] = req.body[field];
     }
   });
+
+  // const userUpdate = await User.findOneAndUpdate(
+  //   { _id: userId },
+  //   { name, password, avatarURL }
+  // );
+
   await user.save();
   return sendResponse(
     res,
@@ -53,6 +60,7 @@ userController.updateProfile = catchAsync(async (req, res, next) => {
 
 userController.getCurrentUser = catchAsync(async (req, res, next) => {
   const userId = req.userId;
+  console.log("process", userId);
   const user = await User.findById(userId);
   if (!user)
     return next(new AppError(400, "User not found", "Get Current User Error"));
@@ -113,12 +121,12 @@ userController.startFollowing = catchAsync(async (req, res, next) => {
     );
   }
 
+  console.log("hi");
   let following = await Follower.findOne({
-    $or: [
-      { follower: toUserId, following: userId },
-      { follower: userId, following: toUserId },
-    ],
+    follower: userId,
+    following: toUserId,
   });
+  // following.status = "following";
   if (!following) {
     await Follower.create({
       follower: userId,
@@ -132,6 +140,14 @@ userController.startFollowing = catchAsync(async (req, res, next) => {
       null,
       null,
       "You are now following this user"
+    );
+  } else {
+    return next(
+      new AppError(
+        400,
+        "You are already following this user",
+        "Follow Request Error"
+      )
     );
   }
   // } else {
@@ -173,6 +189,71 @@ userController.startFollowing = catchAsync(async (req, res, next) => {
   //       break;
   //   }
   // }
+});
+
+userController.stopFollowing = catchAsync(async (req, res, next) => {
+  const userId = req.userId; // From
+  const toUserId = req.params.id; // To
+
+  const user = await User.findById(toUserId);
+  if (!user) {
+    return next(
+      new AppError(400, "User not found", "Send Friend Request Error")
+    );
+  }
+
+  let following = await Follower.findOneAndDelete({
+    follower: userId,
+    following: toUserId,
+  });
+  if (!following) {
+    return next(
+      new AppError(
+        400,
+        "Already unfollowed or User not following this User",
+        "Unfollow User Error"
+      )
+    );
+  }
+
+  return sendResponse(
+    res,
+    200,
+    true,
+    null,
+    null,
+    "You have stopped following this user"
+  );
+});
+
+userController.getFollowingList = catchAsync(async (req, res, next) => {
+  let { page, limit, sortBy, ...filter } = { ...req.query };
+  const userId = req.userId;
+  page = parseInt(page) || 1;
+  limit = parseInt(limit) || 10;
+  console.log("hi");
+
+  let followingList = await Follower.find({
+    follower: userId,
+    status: "following",
+  });
+
+  const followingIds = followingList.map((item) => item.following);
+
+  const totalFollowing = await User.countDocuments({
+    ...filter,
+    isDeleted: false,
+    _id: { $in: followingIds },
+  });
+  const totalPages = Math.ceil(totalFollowing / limit);
+  const offset = limit * (page - 1);
+
+  let users = await User.find({ ...filter, _id: { $in: followingIds } })
+    .sort({ ...sortBy, createdAt: -1 })
+    .skip(offset)
+    .limit(limit);
+
+  return sendResponse(res, 200, true, { users, totalPages }, null, null);
 });
 
 module.exports = userController;

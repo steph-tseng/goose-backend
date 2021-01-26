@@ -11,6 +11,17 @@ const authMiddleware = require("../middlewares/authentication");
 router.get("/", projectController.getProjects);
 
 /**
+ * @route GET api/projects/following
+ * @description Get list of all projects of followed users
+ * @access Login required
+ */
+router.get(
+  "/following",
+  authMiddleware.loginRequired,
+  projectController.getProjectsOfFollowing
+);
+
+/**
  * @route GET api/projects/:projectId
  * @description Get details of a single project
  * @access Public

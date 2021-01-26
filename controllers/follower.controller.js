@@ -108,7 +108,7 @@ userController.getCurrentUser = catchAsync(async (req, res, next) => {
   );
 });
 
-userController.sendFriendRequest = catchAsync(async (req, res, next) => {
+userController.sendFollowRequest = catchAsync(async (req, res, next) => {
   const userId = req.userId; // From
   const toUserId = req.params.id; // To
 

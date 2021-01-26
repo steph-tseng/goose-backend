@@ -6,7 +6,7 @@ const followerSchema = Schema(
   {
     follower: { type: Schema.ObjectId, required: true, ref: "User" },
     following: { type: Schema.ObjectId, required: true, ref: "User" },
-    status: { type: String, enum: ["following, mutual, cancelled"] },
+    status: { type: String, enum: ["following", "mutual", "notFollowing"] },
   },
   { timestamps: true }
 );

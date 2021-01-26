@@ -2,9 +2,9 @@ const socket_io = require("socket.io");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 const { AppError } = require("../helpers/utils.helper");
-// const GlobalMessage = require("../models/GlobalMessage");
+const GlobalMessage = require("../models/GlobalMessage");
 // const Message = require("../models/Message");
-// const User = require("../models/User");
+const User = require("../models/User");
 // const Conversation = require("../models/Conversation");
 
 const socketTypes = {
@@ -21,13 +21,13 @@ const socketTypes = {
 const io = socket_io();
 const socketApi = {};
 socketApi.io = io;
-
 let onlineUsers = {};
 
 io.use((socket, next) => {
   try {
     const tokenString = socket.handshake.query.accessToken;
-    console.log(tokenString);
+    console.log("bruh", tokenString);
+    // console.log(tokenString);
     if (!tokenString)
       return next(
         new AppError(401, "Login required", "SocketIO Connection Error")
@@ -54,10 +54,11 @@ io.use((socket, next) => {
 });
 
 io.on("connection", async function (socket) {
+  console.log("hi");
+  socket.emit("hello", "can you hear me?", 1, 2, "abc");
   io.emit(socketTypes.NOTIFICATION, {
     onlineUsers: Object.keys(onlineUsers),
   });
-
   socket.on("error", (error) => {
     console.log(error);
   });
@@ -68,6 +69,47 @@ io.on("connection", async function (socket) {
     io.emit(socketTypes.NOTIFICATION, {
       onlineUsers: Object.keys(onlineUsers),
     });
+  });
+});
+
+io.on("connection", async function (socket) {
+  console.log("Connected", socket.userId);
+  onlineUsers[socket.userId] = socket.id;
+  // console.log(onlineUsers);
+
+  socket.on(socketTypes.GLOBAL_MSG_INIT, async () => {
+    try {
+      let globalMessages = await GlobalMessage.find()
+        .sort({ createdAt: -1 })
+        .limit(100)
+        .populate("from");
+      globalMessages = globalMessages.reverse();
+      io.emit(socketTypes.NOTIFICATION, { globalMessages });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  socket.on(socketTypes.GLOBAL_MSG_SEND, async (msg) => {
+    try {
+      const user = await User.findById(msg.from);
+      if (user && user._id.equals(socket.userId) && msg.body) {
+        let globalMsg = await GlobalMessage.create({
+          from: msg.from,
+          body: msg.body,
+        });
+        globalMsg.user = user;
+
+        let globalMessages = await GlobalMessage.find()
+          .sort({ createdAt: -1 })
+          .limit(100)
+          .populate("from");
+        globalMessages = globalMessages.reverse();
+        io.emit(socketTypes.NOTIFICATION, { globalMessages });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   });
 });
 

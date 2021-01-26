@@ -3,6 +3,7 @@ const {
   catchAsync,
   sendResponse,
 } = require("../helpers/utils.helper");
+const Follower = require("../models/Follower");
 const Project = require("../models/Project");
 const projectController = {};
 
@@ -11,6 +12,7 @@ projectController.getProjects = catchAsync(async (req, res, next) => {
   let { page, limit, sortBy, ...filter } = { ...req.query };
   page = parseInt(page) || 1;
   limit = parseInt(limit) || 10;
+  // console.log("SEARCH AUTHOR", filter);
 
   const totalProjects = await Project.countDocuments({
     ...filter,
@@ -25,9 +27,39 @@ projectController.getProjects = catchAsync(async (req, res, next) => {
     .limit(limit)
     .populate("author")
     .populate("topic");
-
   return sendResponse(res, 200, true, { projects, totalPages }, null, "");
 });
+
+projectController.getProjectsOfFollowing = catchAsync(
+  async (req, res, next) => {
+    let { page, limit, sortBy, ...filter } = { ...req.query };
+    page = parseInt(page) || 1;
+    limit = parseInt(limit) || 10;
+    const currentUserId = req.userId;
+    console.log({ currentUserId });
+    let followings = await Follower.find({ follower: currentUserId }).select(
+      "following"
+    );
+    followings = followings.map((f) => f.following);
+    console.log({ followings });
+    const promises = followings.map(
+      async (user) =>
+        await Project.find({ author: user })
+          .populate("author")
+          .populate("topic")
+    );
+    let projects = await Promise.all(promises);
+    projects = projects.flat();
+    // console.log("SEARCH AUTHOR", filter);
+    console.log({ projects });
+    const totalProjects = projects.length;
+    const totalPages = Math.ceil(totalProjects / limit);
+    const offset = limit * (page - 1);
+
+    projects = projects.slice(offset, offset + limit);
+    return sendResponse(res, 200, true, { projects, totalPages }, null, "");
+  }
+);
 
 projectController.getSelectedProject = catchAsync(async (req, res, next) => {
   let project = await Project.findById(req.params.id)
