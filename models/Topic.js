@@ -9,6 +9,7 @@ const topicSchema = Schema(
     tags: [String],
     projectCount: { type: Number, default: 0 },
     projects: [String],
+    image: [String],
     isDeleted: { type: Boolean, default: false, select: false },
   },
   { timestamps: true }

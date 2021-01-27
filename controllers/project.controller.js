@@ -76,7 +76,7 @@ projectController.getSelectedProject = catchAsync(async (req, res, next) => {
 projectController.createNewProject = catchAsync(async (req, res, next) => {
   const author = req.userId;
   // const topic = req.topicId;
-  console.log("redaasdadf", req.body);
+  // console.log("redaasdadf", req.body);
   const { title, content, topicId, tags } = req.body;
   console.log("kkkkkkk", { title, content, topicId, tags });
   const project = await Project.create({

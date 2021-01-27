@@ -52,9 +52,9 @@ topicController.getSelectedTopic = catchAsync(async (req, res, next) => {
 
 topicController.createNewTopic = catchAsync(async (req, res, next) => {
   // const author = req.userId;
-  const { title, description } = req.body;
+  const { title, description, image } = req.body;
 
-  const topic = await Topic.create({ title, description });
+  const topic = await Topic.create({ title, description, image });
 
   return sendResponse(
     res,
@@ -67,12 +67,12 @@ topicController.createNewTopic = catchAsync(async (req, res, next) => {
 });
 
 topicController.updateProject = catchAsync(async (req, res, next) => {
-  const { title, description } = req.body;
+  const { title, description, image } = req.body;
   const topicId = req.params.id;
 
   const topic = await Topic.findOneAndUpdate(
     { _id: topicId },
-    { title, description },
+    { title, description, image },
     { new: true }
   );
 
