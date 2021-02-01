@@ -9,6 +9,7 @@ const projectSchema = Schema(
     content: { type: String, required: true },
     researchQuestion: { type: String },
     tags: [String],
+    images: [String],
     author: { type: Schema.Types.ObjectId, required: true, ref: "User" },
     topicId: { type: Schema.Types.ObjectId, ref: "Topic" },
     reactions: {

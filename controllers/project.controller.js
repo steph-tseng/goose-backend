@@ -77,13 +77,14 @@ projectController.createNewProject = catchAsync(async (req, res, next) => {
   const author = req.userId;
   // const topic = req.topicId;
   // console.log("redaasdadf", req.body);
-  const { title, content, topicId, tags } = req.body;
-  console.log("kkkkkkk", { title, content, topicId, tags });
+  const { title, content, tags, topicId, images } = req.body;
+  // console.log("kkkkkkk", { title, content, topicId, tags, images });
   const project = await Project.create({
     title,
     content,
     tags,
     topicId,
+    images,
     author,
   });
 
@@ -101,11 +102,11 @@ projectController.updateProject = catchAsync(async (req, res, next) => {
   // console.log(req);
   const author = req.userId;
   const projectId = req.params.id;
-  const { title, content, tags, topicId } = req.body;
+  const { title, content, tags, topicId, images } = req.body;
 
   const project = await Project.findOneAndUpdate(
     { _id: projectId, author: author },
-    { title, content, tags, topicId },
+    { title, content, tags, topicId, images },
     { new: true }
   );
 
