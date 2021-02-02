@@ -34,13 +34,13 @@ projectSchema.statics.calculateProjectCount = async function (userId) {
 };
 
 projectSchema.statics.calculateProjectInTopicCount = async function (topicId) {
-  const ProjectCount = await this.find({
+  const projectCount = await this.find({
     topic: topicId,
   }).countDocuments();
-  await Topic.findByIdAndUpdate(topicId, { projectCount: ProjectCount });
+  await Topic.findByIdAndUpdate(topicId, { projectCount: projectCount });
 };
 
-projectSchema.post("save", function () {
+projectSchema.post("save", async function () {
   this.constructor.calculateProjectCount(this.author);
   this.constructor.calculateProjectInTopicCount(this.topic);
 });
@@ -51,10 +51,10 @@ projectSchema.pre(/^findOneAnd/, async function (next) {
 });
 
 projectSchema.post(/^findOneAnd/, async function (next) {
-  if (this.doc)
-    await this.doc.constructor.calculateProjectCount(this.doc.author);
-  if (this.doc)
-    await this.doc.constructor.calculateProjectInTopicCount(this.doc.topic);
+  // if (this.doc)
+  await this.doc.constructor.calculateProjectCount(this.doc.author);
+  // if (this.doc)
+  await this.doc.constructor.calculateProjectInTopicCount(this.doc.topic);
 });
 
 projectSchema.plugin(require("./plugins/isDeletedFalse"));
