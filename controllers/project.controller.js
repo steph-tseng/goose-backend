@@ -5,6 +5,7 @@ const {
 } = require("../helpers/utils.helper");
 const Follower = require("../models/Follower");
 const Project = require("../models/Project");
+const Topic = require("../models/Topic");
 const projectController = {};
 
 // TODO
@@ -60,6 +61,27 @@ projectController.getProjectsOfFollowing = catchAsync(
     return sendResponse(res, 200, true, { projects, totalPages }, null, "");
   }
 );
+
+projectController.getProjectByTopic = catchAsync(async (req, res, next) => {
+  const topicId = req.params.id;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+
+  const topic = Topic.findById(topicId);
+  if (!topic)
+    return next(new AppError(404, "Topic not found", "Get Projects Error"));
+
+  const totalProjects = await Project.countDocuments({ topic: topicId });
+  const totalPages = Math.ceil(totalProjects / limit);
+  const offset = limit * (page - 1);
+
+  const projects = await Project.find({ topicId: topicId })
+    .sort({ createdAt: -1 })
+    .skip(offset)
+    .limit(limit);
+
+  return sendResponse(res, 200, true, { projects, totalPages }, null, "");
+});
 
 projectController.getSelectedProject = catchAsync(async (req, res, next) => {
   let project = await Project.findById(req.params.id)

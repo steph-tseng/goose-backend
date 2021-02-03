@@ -24,7 +24,8 @@ topicController.getTopics = catchAsync(async (req, res, next) => {
     .sort({ ...sortBy, title: 1 })
     .skip(offset)
     .limit(limit)
-    .populate("author");
+    .populate("author")
+    .populate("projects");
 
   return sendResponse(res, 200, true, { topics, totalPages }, null, "");
 });
@@ -41,7 +42,9 @@ topicController.getAllTopics = catchAsync(async (req, res, next) => {
 });
 
 topicController.getSelectedTopic = catchAsync(async (req, res, next) => {
-  let topic = await Topic.findById(req.params.id).populate("author");
+  let topic = await await Topic.findById(req.params.id)
+    .populate("author")
+    .populate("projects");
   if (!topic)
     return next(
       new AppError(404, "Topic not found", "Get specific topic error")

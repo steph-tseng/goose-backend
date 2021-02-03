@@ -2,6 +2,7 @@ const express = require("express");
 const projectController = require("../controllers/project.controller");
 const router = express.Router();
 const authMiddleware = require("../middlewares/authentication");
+const validators = require("../middlewares/validators");
 
 /**
  * @route GET api/projects
@@ -9,6 +10,13 @@ const authMiddleware = require("../middlewares/authentication");
  * @access Public
  */
 router.get("/", projectController.getProjects);
+
+/**
+ * @route GET api/projects/topics/:id?page=1&limit=10
+ * @description Get projects of a topic with pagination
+ * @access Public
+ */
+router.get("/topics/:id", projectController.getProjectByTopic);
 
 /**
  * @route GET api/projects/following
